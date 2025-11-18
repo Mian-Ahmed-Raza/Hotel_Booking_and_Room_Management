@@ -4,16 +4,21 @@ from app.views.login import LoginWindow
 from app.views.register import RegisterWindow
 from app.views.dashboard import Dashboard
 from app.models.user import User
-
-
+from app.models.room import Room
+from app.models.booking import Booking
+from app.models.review import Review
 
 
 def run_app():
-    # Ensure DB table exists
+    # Ensure all DB tables exist
     try:
         User.create_table()
+        Room.create_table()
+        Booking.create_table()
+        Review.create_table()
+        print("✓ All database tables initialized")
     except Exception as e:
-        print(f"Warning: Could not create table: {e}")
+        print(f"Warning: Could not create tables: {e}")
 
     root = tk.Tk()
 

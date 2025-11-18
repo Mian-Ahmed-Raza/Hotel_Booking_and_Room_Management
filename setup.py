@@ -50,8 +50,15 @@ def create_tables():
     """Create database tables"""
     try:
         from app.models.user import User
+        from app.models.room import Room
+        from app.models.booking import Booking
+        from app.models.review import Review
+        
         User.create_table()
-        print("✓ Database tables created successfully")
+        Room.create_table()
+        Booking.create_table()
+        Review.create_table()
+        print("✓ Database tables created successfully (users, rooms, bookings, reviews)")
         return True
     except Exception as e:
         print(f"✗ Failed to create tables: {e}")
