@@ -1,5 +1,3 @@
-tkinter
-mysql-connector-python
-pytestgit 
 mysql-connector-python
 pytest
+python-dotenv

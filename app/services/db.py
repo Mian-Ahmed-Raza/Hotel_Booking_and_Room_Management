@@ -15,10 +15,13 @@ DB_CONFIG = {
 
 @contextmanager
 def get_connection():
-conn = None
-try:
-conn = mysql.connector.connect(**DB_CONFIG)
-yield conn
-n finally:
-if conn and conn.is_connected():
-conn.close()
+    conn = None
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        yield conn
+    except Error as e:
+        print(f"Database connection error: {e}")
+        raise
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
