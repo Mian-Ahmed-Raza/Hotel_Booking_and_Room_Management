@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
 from app.models.booking import Booking
 from app.models.room import Room
-from app.utils.style import center_window
+from app.utils.style import center_window, make_button, make_header, apply_theme
 
 
 class BookingManagementWindow:
@@ -12,15 +12,18 @@ class BookingManagementWindow:
         self.master = master
         master.title("Booking Management")
         center_window(master, 1000, 600)
+        apply_theme(master)
+        header = make_header(master, "Booking Management")
+        header.pack(pady=(12, 6))
         
         # Top frame for buttons
-        top_frame = tk.Frame(master)
+        top_frame = tk.Frame(master, bg=master['bg'])
         top_frame.pack(pady=10)
         
-        tk.Button(top_frame, text="New Booking", command=self.new_booking, width=15, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="View Details", command=self.view_booking, width=15, bg='blue', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="Cancel Booking", command=self.cancel_booking, width=15, bg='red', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="Refresh", command=self.load_bookings, width=15).pack(side=tk.LEFT, padx=5)
+        make_button(top_frame, "New Booking", command=self.new_booking, color='#27ae60', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "View Details", command=self.view_booking, color='#3498db', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "Cancel Booking", command=self.cancel_booking, color='#e74c3c', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "Refresh", command=self.load_bookings, width=12).pack(side=tk.LEFT, padx=6)
         
         # Treeview for displaying bookings
         tree_frame = tk.Frame(master)
@@ -60,7 +63,7 @@ class BookingManagementWindow:
         self.load_bookings()
         
         # Back button
-        tk.Button(master, text="Back to Dashboard", command=master.destroy, width=20).pack(pady=10)
+        make_button(master, "Back to Dashboard", command=master.destroy, width=20, color='#95a5a6').pack(pady=10)
     
     def load_bookings(self):
         # Clear existing items
@@ -183,8 +186,8 @@ class NewBookingDialog:
         # Buttons
         button_frame = tk.Frame(self.dialog)
         button_frame.pack(pady=15)
-        tk.Button(button_frame, text="Book Now", command=self.save_booking, width=12, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Cancel", command=self.dialog.destroy, width=12).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Book Now", command=self.save_booking, color='#27ae60', width=12).pack(side=tk.LEFT, padx=6)
+        make_button(button_frame, "Cancel", command=self.dialog.destroy, color='#95a5a6', width=12).pack(side=tk.LEFT, padx=6)
     
     def load_available_rooms(self):
         try:
@@ -286,4 +289,4 @@ class ViewBookingDialog:
             tk.Label(info_frame, text=label, font=('Arial', 10, 'bold')).grid(row=i, column=0, sticky='w', pady=5)
             tk.Label(info_frame, text=str(value), font=('Arial', 10)).grid(row=i, column=1, sticky='w', padx=20, pady=5)
         
-        tk.Button(dialog, text="Close", command=dialog.destroy, width=15).pack(pady=10)
+        make_button(dialog, "Close", command=dialog.destroy, width=15, color='#95a5a6').pack(pady=10)

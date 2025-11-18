@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from app.models.room import Room
-from app.utils.style import center_window
+from app.utils.style import center_window, make_button, make_header, apply_theme
 
 
 class RoomManagementWindow:
@@ -10,15 +10,18 @@ class RoomManagementWindow:
         self.master = master
         master.title("Room Management")
         center_window(master, 900, 600)
+        apply_theme(master)
+        header = make_header(master, "Room Inventory")
+        header.pack(pady=(12, 6))
         
         # Top frame for buttons
         top_frame = tk.Frame(master)
         top_frame.pack(pady=10)
         
-        tk.Button(top_frame, text="Add Room", command=self.add_room, width=15, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="Edit Room", command=self.edit_room, width=15, bg='blue', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="Delete Room", command=self.delete_room, width=15, bg='red', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="Refresh", command=self.load_rooms, width=15).pack(side=tk.LEFT, padx=5)
+        make_button(top_frame, "Add Room", command=self.add_room, color='#27ae60', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "Edit Room", command=self.edit_room, color='#3498db', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "Delete Room", command=self.delete_room, color='#e74c3c', width=14).pack(side=tk.LEFT, padx=6)
+        make_button(top_frame, "Refresh", command=self.load_rooms, width=12).pack(side=tk.LEFT, padx=6)
         
         # Treeview for displaying rooms
         tree_frame = tk.Frame(master)
@@ -54,7 +57,7 @@ class RoomManagementWindow:
         self.load_rooms()
         
         # Back button
-        tk.Button(master, text="Back to Dashboard", command=master.destroy, width=20).pack(pady=10)
+        make_button(master, "Back to Dashboard", command=master.destroy, width=20, color='#95a5a6').pack(pady=10)
     
     def load_rooms(self):
         # Clear existing items
@@ -157,8 +160,8 @@ class AddEditRoomDialog:
         # Buttons
         button_frame = tk.Frame(self.dialog)
         button_frame.pack(pady=20)
-        tk.Button(button_frame, text="Save", command=self.save, width=12, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Cancel", command=self.dialog.destroy, width=12).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Save", command=self.save, color='#27ae60', width=12).pack(side=tk.LEFT, padx=6)
+        make_button(button_frame, "Cancel", command=self.dialog.destroy, color='#95a5a6', width=12).pack(side=tk.LEFT, padx=6)
         
         # Load data if editing
         if mode == 'edit' and room:

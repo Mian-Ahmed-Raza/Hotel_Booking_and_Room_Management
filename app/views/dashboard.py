@@ -1,7 +1,7 @@
 # app/views/dashboard.py
 import tkinter as tk
 from tkinter import messagebox
-from app.utils.style import center_window
+from app.utils.style import center_window, make_button, make_header, apply_theme
 
 
 class Dashboard:
@@ -10,15 +10,14 @@ class Dashboard:
         master.title("Hotel Management System - Dashboard")
         center_window(master, 900, 600)
 
+        apply_theme(master)
         # Header
-        header_frame = tk.Frame(master, bg='#2c3e50', height=80)
-        header_frame.pack(fill=tk.X)
-        tk.Label(header_frame, text="🏨 Hotel Management System", 
-                font=('Arial', 20, 'bold'), bg='#2c3e50', fg='white').pack(pady=25)
-        
+        header = make_header(master, "🏨 Hotel Management System")
+        header.pack(pady=(18, 8))
+
         # Welcome message
         tk.Label(master, text="Welcome to the Dashboard", 
-                font=('Arial', 14), fg='#34495e').pack(pady=15)
+            font=('Segoe UI', 12), fg='#34495e', bg=master['bg']).pack(pady=6)
         
         # Create frame for buttons
         button_frame = tk.Frame(master)
@@ -34,9 +33,7 @@ class Dashboard:
         ]
         
         for i, (text, command, color) in enumerate(buttons):
-            btn = tk.Button(button_frame, text=text, command=command, 
-                          width=35, height=2, bg=color, fg='white',
-                          font=('Arial', 11, 'bold'), cursor='hand2')
+            btn = make_button(button_frame, text, command=command, color=color, width=36, height=2)
             btn.pack(pady=8)
         
         # Stats frame (optional - shows quick stats)
@@ -52,9 +49,7 @@ class Dashboard:
         stats_text.pack(pady=5)
         
         # Logout button
-        tk.Button(master, text="🚪 Logout", command=self.logout, 
-                 width=20, height=1, bg='#e74c3c', fg='white',
-                 font=('Arial', 10, 'bold')).pack(pady=15)
+        make_button(master, "🚪 Logout", command=self.logout, color='#e74c3c', width=20).pack(pady=15)
     
     def open_room_management(self):
         from app.views.room_management import RoomManagementWindow

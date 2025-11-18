@@ -2,34 +2,38 @@
 import tkinter as tk
 from tkinter import messagebox
 from app.services.auth import AuthService
-from app.utils.style import center_window
+from app.utils.style import center_window, make_button, make_header, apply_theme
 
 
 class RegisterWindow:
     def __init__(self, master, on_success=None):
         self.master = master
         self.on_success = on_success
-        master.title("Hotel Booking - Register")
-        center_window(master, 420, 300)
+        master.title("Create Account")
+        center_window(master, 460, 380)
+        apply_theme(master)
 
-        tk.Label(master, text="Username:").pack(pady=(20, 5))
-        self.username_entry = tk.Entry(master, width=30)
+        header = make_header(master, "Create your account")
+        header.pack(pady=(18, 6))
+
+        tk.Label(master, text="Username:", bg=master['bg']).pack(pady=(10, 3))
+        self.username_entry = tk.Entry(master, width=40)
         self.username_entry.pack()
 
-        tk.Label(master, text="Full Name:").pack(pady=(10, 5))
-        self.fullname_entry = tk.Entry(master, width=30)
+        tk.Label(master, text="Full Name:", bg=master['bg']).pack(pady=(10, 3))
+        self.fullname_entry = tk.Entry(master, width=40)
         self.fullname_entry.pack()
 
-        tk.Label(master, text="Password:").pack(pady=(10, 5))
-        self.password_entry = tk.Entry(master, show='*', width=30)
+        tk.Label(master, text="Password:", bg=master['bg']).pack(pady=(10, 3))
+        self.password_entry = tk.Entry(master, show='*', width=40)
         self.password_entry.pack()
 
-        tk.Label(master, text="Confirm Password:").pack(pady=(10, 5))
-        self.confirm_password_entry = tk.Entry(master, show='*', width=30)
+        tk.Label(master, text="Confirm Password:", bg=master['bg']).pack(pady=(10, 3))
+        self.confirm_password_entry = tk.Entry(master, show='*', width=40)
         self.confirm_password_entry.pack()
         self.confirm_password_entry.bind('<Return>', lambda e: self.handle_register())
 
-        tk.Button(master, text="Register", command=self.handle_register, width=15).pack(pady=15)
+        make_button(master, "Register", command=self.handle_register, width=18, color='#2ecc71').pack(pady=14)
 
     def handle_register(self):
         username = self.username_entry.get().strip()
