@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime, date
 from app.models.booking import Booking
 from app.models.room import Room
-from app.utils.style import center_window, make_button, make_header, card_frame, apply_theme
+from app.utils.style import center_window, make_button, make_header, card_frame, apply_theme, make_appbar
 
 
 class CheckInCheckOutWindow:
@@ -13,6 +13,8 @@ class CheckInCheckOutWindow:
         master.title("Check-in / Check-out Management")
         center_window(master, 1000, 600)
         apply_theme(master)
+        # App bar
+        make_appbar(master, title="Check-in / Check-out").pack(fill=tk.X)
 
         # Header
         header = make_header(master, "Check-in / Check-out Management")
@@ -59,8 +61,8 @@ class CheckInCheckOutWindow:
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         # Instructions
-        instructions = tk.Label(master, text="Select a booking and click Check-in or Check-out",
-                                font=('Segoe UI', 10), fg='#2d8cf0', bg=master['bg'])
+        from tkinter import ttk
+        instructions = ttk.Label(master, text="Select a booking and click Check-in or Check-out", style='Primary.TLabel')
         instructions.pack(pady=6)
 
         # Load bookings

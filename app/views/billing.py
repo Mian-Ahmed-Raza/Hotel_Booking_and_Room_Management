@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime
 from app.models.booking import Booking
 from app.models.room import Room
-from app.utils.style import center_window
+from app.utils.style import center_window, apply_theme, make_button, card_frame, make_header, THEME, make_appbar
 
 
 class BillingWindow:
@@ -12,34 +12,31 @@ class BillingWindow:
         self.master = master
         master.title("Billing & Invoices")
         center_window(master, 1000, 600)
-        
-        # Top frame
-        top_frame = tk.Frame(master)
-        top_frame.pack(pady=10)
-        
-        tk.Label(top_frame, text="Billing & Invoice Management", font=('Arial', 16, 'bold')).pack()
-        
+        apply_theme(master)
+        # App bar
+        make_appbar(master, title="Billing & Invoices").pack(fill=tk.X)
+        make_header(master, "Billing & Invoices").pack(pady=(12, 8))
         # Filter frame
-        filter_frame = tk.Frame(master)
+        filter_frame = tk.Frame(master, bg=master['bg'])
         filter_frame.pack(pady=10)
-        
-        tk.Label(filter_frame, text="Filter:").pack(side=tk.LEFT, padx=5)
+
+        ttk.Label(filter_frame, text="Filter:", style='Muted.TLabel').pack(side=tk.LEFT, padx=5)
         self.filter_var = tk.StringVar(value='All')
         ttk.Combobox(filter_frame, textvariable=self.filter_var, width=15,
                      values=['All', 'Completed', 'Checked-in', 'Confirmed'], state='readonly').pack(side=tk.LEFT, padx=5)
-        tk.Button(filter_frame, text="Apply Filter", command=self.load_bookings, width=12).pack(side=tk.LEFT, padx=5)
-        tk.Button(filter_frame, text="Generate Invoice", command=self.generate_invoice, width=15, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        
-        # Treeview for displaying bookings
-        tree_frame = tk.Frame(master)
-        tree_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
-        
+        make_button(filter_frame, "Apply Filter", command=self.load_bookings, width=12).pack(side=tk.LEFT, padx=5)
+        make_button(filter_frame, "Generate Invoice", command=self.generate_invoice, width=15, color=THEME['primary']).pack(side=tk.LEFT, padx=5)
+
+        # Treeview for displaying bookings (card)
+        tree_card = card_frame(master)
+        tree_card.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
         # Scrollbar
-        scrollbar = ttk.Scrollbar(tree_frame)
+        scrollbar = ttk.Scrollbar(tree_card.inner)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         # Create treeview
-        self.tree = ttk.Treeview(tree_frame, columns=('ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Nights', 'Total', 'Status'), 
+        self.tree = ttk.Treeview(tree_card.inner, columns=('ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Nights', 'Total', 'Status'), 
                                   show='headings', yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tree.yview)
         
@@ -64,21 +61,20 @@ class BillingWindow:
         
         self.tree.pack(fill=tk.BOTH, expand=True)
         
-        # Summary frame
-        summary_frame = tk.Frame(master, relief=tk.RIDGE, borderwidth=2)
-        summary_frame.pack(pady=10, padx=10, fill=tk.X)
-        
-        tk.Label(summary_frame, text="Summary:", font=('Arial', 12, 'bold')).pack(side=tk.LEFT, padx=10)
-        self.total_bookings_label = tk.Label(summary_frame, text="Total Bookings: 0", font=('Arial', 10))
+        # Summary card
+        summary_card = card_frame(master)
+        summary_card.pack(pady=10, padx=10, fill=tk.X)
+        ttk.Label(summary_card.inner, text="Summary:", style='Primary.TLabel').pack(side=tk.LEFT, padx=10)
+        self.total_bookings_label = ttk.Label(summary_card.inner, text="Total Bookings: 0", style='Muted.TLabel')
         self.total_bookings_label.pack(side=tk.LEFT, padx=20)
-        self.total_revenue_label = tk.Label(summary_frame, text="Total Revenue: $0.00", font=('Arial', 10, 'bold'), fg='green')
+        self.total_revenue_label = ttk.Label(summary_card.inner, text="Total Revenue: $0.00", style='Accent.TLabel')
         self.total_revenue_label.pack(side=tk.LEFT, padx=20)
         
         # Load bookings
         self.load_bookings()
         
         # Back button
-        tk.Button(master, text="Back to Dashboard", command=master.destroy, width=20).pack(pady=10)
+        make_button(master, "Back to Dashboard", command=master.destroy, width=20, color=THEME['danger']).pack(pady=10)
     
     def load_bookings(self):
         # Clear existing items
@@ -148,90 +144,87 @@ class InvoiceDialog:
         dialog.title(f"Invoice - INV-{booking.id:04d}")
         center_window(dialog, 500, 600)
         dialog.transient(parent)
-        
+        apply_theme(dialog)
+
         # Header
-        header_frame = tk.Frame(dialog, bg='#2c3e50', height=80)
-        header_frame.pack(fill=tk.X)
-        tk.Label(header_frame, text="HOTEL BOOKING INVOICE", font=('Arial', 18, 'bold'), 
-                bg='#2c3e50', fg='white').pack(pady=20)
-        
-        # Invoice details frame
-        details_frame = tk.Frame(dialog, padx=20, pady=20)
-        details_frame.pack(fill=tk.BOTH, expand=True)
+        make_header(dialog, f"Invoice - INV-{booking.id:04d}").pack(pady=(12, 6))
+
+        # Invoice details frame (card)
+        details_card = card_frame(dialog)
+        details_card.pack(fill=tk.BOTH, expand=True, padx=12, pady=8)
         
         # Invoice number and date
-        tk.Label(details_frame, text=f"Invoice #: INV-{booking.id:04d}", 
-                font=('Arial', 12, 'bold')).pack(anchor='w')
-        tk.Label(details_frame, text=f"Date: {datetime.now().strftime('%Y-%m-%d')}", 
-                font=('Arial', 10)).pack(anchor='w', pady=(0, 10))
+        tk.Label(details_card.inner, text=f"Invoice #: INV-{booking.id:04d}", 
+                font=('Segoe UI', 12, 'bold'), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Date: {datetime.now().strftime('%Y-%m-%d')}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w', pady=(0, 10))
         
         # Divider
-        ttk.Separator(details_frame, orient='horizontal').pack(fill='x', pady=10)
+        ttk.Separator(details_card.inner, orient='horizontal').pack(fill='x', pady=10)
         
         # Guest information
-        tk.Label(details_frame, text="GUEST INFORMATION", 
-                font=('Arial', 11, 'bold'), fg='#2c3e50').pack(anchor='w', pady=(10, 5))
-        tk.Label(details_frame, text=f"Name: {booking.guest_name}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Phone: {booking.guest_phone}", 
-                font=('Arial', 10)).pack(anchor='w', pady=(0, 10))
+        tk.Label(details_card.inner, text="GUEST INFORMATION", 
+                font=('Segoe UI', 11, 'bold'), fg=THEME['primary'], bg=THEME['card_bg']).pack(anchor='w', pady=(10, 5))
+        tk.Label(details_card.inner, text=f"Name: {booking.guest_name}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Phone: {booking.guest_phone}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w', pady=(0, 10))
         
         # Booking information
         room = Room.get_by_id(booking.room_id)
         
-        tk.Label(details_frame, text="BOOKING DETAILS", 
-                font=('Arial', 11, 'bold'), fg='#2c3e50').pack(anchor='w', pady=(10, 5))
-        tk.Label(details_frame, text=f"Room Number: {room.room_number if room else 'N/A'}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Room Type: {room.room_type if room else 'N/A'}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Check-in: {booking.check_in}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Check-out: {booking.check_out}", 
-                font=('Arial', 10)).pack(anchor='w')
+        tk.Label(details_card.inner, text="BOOKING DETAILS", 
+                font=('Segoe UI', 11, 'bold'), fg=THEME['primary'], bg=THEME['card_bg']).pack(anchor='w', pady=(10, 5))
+        tk.Label(details_card.inner, text=f"Room Number: {room.room_number if room else 'N/A'}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Room Type: {room.room_type if room else 'N/A'}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Check-in: {booking.check_in}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Check-out: {booking.check_out}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w')
         
         # Calculate nights
         checkin = booking.check_in if isinstance(booking.check_in, datetime.date) else datetime.strptime(str(booking.check_in), '%Y-%m-%d').date()
         checkout = booking.check_out if isinstance(booking.check_out, datetime.date) else datetime.strptime(str(booking.check_out), '%Y-%m-%d').date()
         nights = (checkout - checkin).days
         
-        tk.Label(details_frame, text=f"Number of Nights: {nights}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Rate per Night: ${room.price if room else 0:.2f}", 
-                font=('Arial', 10)).pack(anchor='w', pady=(0, 10))
+        tk.Label(details_card.inner, text=f"Number of Nights: {nights}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Rate per Night: ${room.price if room else 0:.2f}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['muted']).pack(anchor='w', pady=(0, 10))
         
         # Divider
-        ttk.Separator(details_frame, orient='horizontal').pack(fill='x', pady=10)
+        ttk.Separator(details_card.inner, orient='horizontal').pack(fill='x', pady=10)
         
         # Payment summary
-        tk.Label(details_frame, text="PAYMENT SUMMARY", 
-                font=('Arial', 11, 'bold'), fg='#2c3e50').pack(anchor='w', pady=(10, 5))
+        tk.Label(details_card.inner, text="PAYMENT SUMMARY", 
+                font=('Segoe UI', 11, 'bold'), fg=THEME['primary'], bg=THEME['card_bg']).pack(anchor='w', pady=(10, 5))
         
         subtotal = float(booking.total_price)
         tax = subtotal * 0.10  # 10% tax
         total = subtotal + tax
         
-        tk.Label(details_frame, text=f"Subtotal: ${subtotal:.2f}", 
-                font=('Arial', 10)).pack(anchor='w')
-        tk.Label(details_frame, text=f"Tax (10%): ${tax:.2f}", 
-                font=('Arial', 10)).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Subtotal: ${subtotal:.2f}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
+        tk.Label(details_card.inner, text=f"Tax (10%): ${tax:.2f}", 
+                font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).pack(anchor='w')
         
         # Total in highlighted box
-        total_frame = tk.Frame(details_frame, bg='#27ae60', padx=10, pady=5)
+        total_frame = tk.Frame(details_card.inner, bg=THEME['primary'], padx=10, pady=5)
         total_frame.pack(fill='x', pady=10)
         tk.Label(total_frame, text=f"TOTAL AMOUNT: ${total:.2f}", 
-                font=('Arial', 14, 'bold'), bg='#27ae60', fg='white').pack()
+                font=('Segoe UI', 14, 'bold'), bg=THEME['primary'], fg=THEME['bg']).pack()
         
-        tk.Label(details_frame, text=f"Status: {booking.status}", 
-                font=('Arial', 10, 'bold'), 
-                fg='green' if booking.status == 'Completed' else 'orange').pack(anchor='w', pady=(10, 5))
+        tk.Label(details_card.inner, text=f"Status: {booking.status}", 
+                font=('Segoe UI', 10, 'bold'), 
+                fg=THEME['accent'] if booking.status == 'Completed' else THEME['secondary'], bg=THEME['card_bg']).pack(anchor='w', pady=(10, 5))
         
         # Buttons
-        button_frame = tk.Frame(dialog)
+        button_frame = tk.Frame(dialog, bg=dialog['bg'])
         button_frame.pack(pady=15)
-        tk.Button(button_frame, text="Print Invoice", command=lambda: self.print_invoice(booking), 
-                 width=15, bg='blue', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Close", command=dialog.destroy, width=15).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Print Invoice", command=lambda: self.print_invoice(booking), width=15, color=THEME['secondary']).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Close", command=dialog.destroy, width=15, color=THEME['muted']).pack(side=tk.LEFT, padx=5)
     
     def print_invoice(self, booking):
         messagebox.showinfo("Print", f"Invoice INV-{booking.id:04d} sent to printer\n(Print functionality to be implemented)")

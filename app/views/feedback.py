@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from app.models.review import Review
 from app.models.booking import Booking
-from app.utils.style import center_window
+from app.utils.style import center_window, apply_theme, make_button, make_header, card_frame, THEME, make_appbar
 
 
 class FeedbackWindow:
@@ -11,42 +11,39 @@ class FeedbackWindow:
         self.master = master
         master.title("Feedback & Reviews")
         center_window(master, 1000, 600)
-        
-        # Top frame
-        top_frame = tk.Frame(master)
-        top_frame.pack(pady=10)
-        
-        tk.Label(top_frame, text="Guest Feedback & Reviews", font=('Arial', 16, 'bold')).pack()
-        
-        # Stats frame
-        stats_frame = tk.Frame(master, relief=tk.RIDGE, borderwidth=2, bg='#ecf0f1')
-        stats_frame.pack(pady=10, padx=10, fill=tk.X)
-        
+        apply_theme(master)
+        # App bar
+        make_appbar(master, title="Feedback & Reviews").pack(fill=tk.X)
+        make_header(master, "Guest Feedback & Reviews").pack(pady=(12, 6))
+
         try:
             avg_rating = Review.get_average_rating()
             total_reviews = len(Review.get_all())
         except:
             avg_rating = 0.0
             total_reviews = 0
-        
-        stats_left = tk.Frame(stats_frame, bg='#ecf0f1')
+
+        # Stats card
+        stats_card = card_frame(master)
+        stats_card.pack(pady=10, padx=10, fill=tk.X)
+
+        stats_left = tk.Frame(stats_card.inner, bg=THEME['card_bg'])
         stats_left.pack(side=tk.LEFT, padx=20, pady=10)
-        tk.Label(stats_left, text="Average Rating:", font=('Arial', 11, 'bold'), bg='#ecf0f1').pack()
-        tk.Label(stats_left, text=f"{'⭐' * int(avg_rating)} {avg_rating:.1f}/5.0", 
-                font=('Arial', 14, 'bold'), fg='#f39c12', bg='#ecf0f1').pack()
-        
-        stats_right = tk.Frame(stats_frame, bg='#ecf0f1')
+        ttk.Label(stats_left, text="Average Rating:", style='Primary.TLabel').pack()
+        ttk.Label(stats_left, text=f"{'⭐' * int(avg_rating)} {avg_rating:.1f}/5.0", style='Accent.TLabel').pack()
+
+        stats_right = tk.Frame(stats_card.inner, bg=THEME['card_bg'])
         stats_right.pack(side=tk.LEFT, padx=20, pady=10)
-        tk.Label(stats_right, text="Total Reviews:", font=('Arial', 11, 'bold'), bg='#ecf0f1').pack()
-        tk.Label(stats_right, text=str(total_reviews), font=('Arial', 14, 'bold'), fg='#3498db', bg='#ecf0f1').pack()
-        
+        ttk.Label(stats_right, text="Total Reviews:", style='Primary.TLabel').pack()
+        ttk.Label(stats_right, text=str(total_reviews), style='Primary.TLabel').pack()
+
         # Button frame
-        button_frame = tk.Frame(master)
+        button_frame = tk.Frame(master, bg=master['bg'])
         button_frame.pack(pady=10)
-        
-        tk.Button(button_frame, text="Add Review", command=self.add_review, width=15, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Delete Review", command=self.delete_review, width=15, bg='red', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Refresh", command=self.load_reviews, width=15).pack(side=tk.LEFT, padx=5)
+
+        make_button(button_frame, "Add Review", command=self.add_review, width=15, color=THEME['primary']).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Delete Review", command=self.delete_review, width=15, color=THEME['danger']).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Refresh", command=self.load_reviews, width=15, color=THEME['muted']).pack(side=tk.LEFT, padx=5)
         
         # Treeview for displaying reviews
         tree_frame = tk.Frame(master)
@@ -82,7 +79,7 @@ class FeedbackWindow:
         self.load_reviews()
         
         # Back button
-        tk.Button(master, text="Back to Dashboard", command=master.destroy, width=20).pack(pady=10)
+        make_button(master, "Back to Dashboard", command=master.destroy, width=20, color=THEME['muted']).pack(pady=10)
     
     def load_reviews(self):
         # Clear existing items
@@ -137,44 +134,46 @@ class AddReviewDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Add Review")
-        center_window(self.dialog, 450, 400)
+        center_window(self.dialog, 480, 460)
         self.dialog.transient(parent)
         self.dialog.grab_set()
-        
+        apply_theme(self.dialog)
+        container = card_frame(self.dialog)
+        container.pack(fill=tk.BOTH, expand=True, padx=12, pady=8)
+
         # Booking Selection
-        tk.Label(self.dialog, text="Select Completed Booking:").pack(pady=(20, 5))
+        tk.Label(container.inner, text="Select Completed Booking:", bg=THEME['card_bg']).pack(pady=(12, 6), anchor='w')
         self.booking_var = tk.StringVar()
-        self.booking_combo = ttk.Combobox(self.dialog, textvariable=self.booking_var, width=40, state='readonly')
+        self.booking_combo = ttk.Combobox(container.inner, textvariable=self.booking_var, width=44, state='readonly')
         self.booking_combo.pack()
         self.load_completed_bookings()
-        
+
         # Guest Name
-        tk.Label(self.dialog, text="Guest Name:").pack(pady=(15, 5))
-        self.guest_name_entry = tk.Entry(self.dialog, width=42)
+        tk.Label(container.inner, text="Guest Name:", bg=THEME['card_bg']).pack(pady=(12, 6), anchor='w')
+        self.guest_name_entry = tk.Entry(container.inner, width=46)
         self.guest_name_entry.pack()
-        
+
         # Rating
-        tk.Label(self.dialog, text="Rating:").pack(pady=(15, 5))
-        rating_frame = tk.Frame(self.dialog)
+        tk.Label(container.inner, text="Rating:", bg=THEME['card_bg']).pack(pady=(12, 6), anchor='w')
+        rating_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
         rating_frame.pack()
-        
+
         self.rating_var = tk.IntVar(value=5)
         for i in range(1, 6):
-            tk.Radiobutton(rating_frame, text=f"{'⭐' * i} ({i})", variable=self.rating_var, 
-                          value=i, font=('Arial', 10)).pack(anchor='w')
-        
+            ttk.Radiobutton(rating_frame, text=f"{'⭐' * i} ({i})", variable=self.rating_var,
+                          value=i, style='TButton').pack(anchor='w')
+
         # Comment
-        tk.Label(self.dialog, text="Comment:").pack(pady=(15, 5))
-        self.comment_text = tk.Text(self.dialog, width=40, height=6)
+        tk.Label(container.inner, text="Comment:", bg=THEME['card_bg']).pack(pady=(12, 6), anchor='w')
+        self.comment_text = tk.Text(container.inner, width=46, height=6)
         self.comment_text.pack()
-        
+
         # Buttons
-        button_frame = tk.Frame(self.dialog)
-        button_frame.pack(pady=20)
-        tk.Button(button_frame, text="Submit Review", command=self.save_review, 
-                 width=15, bg='green', fg='white').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Cancel", command=self.dialog.destroy, width=15).pack(side=tk.LEFT, padx=5)
-        
+        button_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
+        button_frame.pack(pady=12)
+        make_button(button_frame, "Submit Review", command=self.save_review, width=15, color=THEME['primary']).pack(side=tk.LEFT, padx=5)
+        make_button(button_frame, "Cancel", command=self.dialog.destroy, width=15, color=THEME['muted']).pack(side=tk.LEFT, padx=5)
+
         # Bind booking selection to auto-fill guest name
         self.booking_combo.bind('<<ComboboxSelected>>', self.on_booking_selected)
     

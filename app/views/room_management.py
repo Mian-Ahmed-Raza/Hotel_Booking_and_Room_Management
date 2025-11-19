@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from app.models.room import Room
-from app.utils.style import center_window, make_button, make_header, apply_theme
+from app.utils.style import center_window, make_button, make_header, apply_theme, card_frame, THEME, make_appbar
 
 
 class RoomManagementWindow:
@@ -11,11 +11,13 @@ class RoomManagementWindow:
         master.title("Room Management")
         center_window(master, 900, 600)
         apply_theme(master)
+        # App bar
+        make_appbar(master, title="Room Management").pack(fill=tk.X)
         header = make_header(master, "Room Inventory")
         header.pack(pady=(12, 6))
         
         # Top frame for buttons
-        top_frame = tk.Frame(master)
+        top_frame = tk.Frame(master, bg=master['bg'])
         top_frame.pack(pady=10)
         
         make_button(top_frame, "Add Room", command=self.add_room, color='#27ae60', width=14).pack(side=tk.LEFT, padx=6)
@@ -23,16 +25,16 @@ class RoomManagementWindow:
         make_button(top_frame, "Delete Room", command=self.delete_room, color='#e74c3c', width=14).pack(side=tk.LEFT, padx=6)
         make_button(top_frame, "Refresh", command=self.load_rooms, width=12).pack(side=tk.LEFT, padx=6)
         
-        # Treeview for displaying rooms
-        tree_frame = tk.Frame(master)
-        tree_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        # Treeview for displaying rooms (inside a card)
+        tree_card = card_frame(master)
+        tree_card.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
         
         # Scrollbar
-        scrollbar = ttk.Scrollbar(tree_frame)
+        scrollbar = ttk.Scrollbar(tree_card.inner)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         # Create treeview
-        self.tree = ttk.Treeview(tree_frame, columns=('ID', 'Room Number', 'Type', 'Price', 'Status', 'Description'), 
+        self.tree = ttk.Treeview(tree_card.inner, columns=('ID', 'Room Number', 'Type', 'Price', 'Status', 'Description'), 
                                   show='headings', yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tree.yview)
         
@@ -122,46 +124,49 @@ class AddEditRoomDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Add Room" if mode == 'add' else "Edit Room")
-        center_window(self.dialog, 400, 350)
+        center_window(self.dialog, 420, 380)
         self.dialog.transient(parent)
         self.dialog.grab_set()
-        
+        apply_theme(self.dialog)
+        container = card_frame(self.dialog)
+        container.pack(fill=tk.BOTH, expand=True, padx=12, pady=8)
+
         # Room Number
-        tk.Label(self.dialog, text="Room Number:").pack(pady=(20, 5))
-        self.room_number_entry = tk.Entry(self.dialog, width=30)
+        tk.Label(container.inner, text="Room Number:", bg=THEME['card_bg']).pack(pady=(12, 5), anchor='w')
+        self.room_number_entry = tk.Entry(container.inner, width=34)
         self.room_number_entry.pack()
-        
+
         # Room Type
-        tk.Label(self.dialog, text="Room Type:").pack(pady=(10, 5))
+        tk.Label(container.inner, text="Room Type:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
         self.room_type_var = tk.StringVar(value='Single')
-        room_type_frame = tk.Frame(self.dialog)
+        room_type_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
         room_type_frame.pack()
-        ttk.Combobox(room_type_frame, textvariable=self.room_type_var, width=28,
-                     values=['Single', 'Double', 'Suite', 'Deluxe', 'Presidential'], state='readonly').pack()
-        
+        ttk.Combobox(room_type_frame, textvariable=self.room_type_var, width=30,
+                 values=['Single', 'Double', 'Suite', 'Deluxe', 'Presidential'], state='readonly').pack()
+
         # Price
-        tk.Label(self.dialog, text="Price per Night ($):").pack(pady=(10, 5))
-        self.price_entry = tk.Entry(self.dialog, width=30)
+        tk.Label(container.inner, text="Price per Night ($):", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.price_entry = tk.Entry(container.inner, width=34)
         self.price_entry.pack()
-        
+
         # Status
-        tk.Label(self.dialog, text="Status:").pack(pady=(10, 5))
+        tk.Label(container.inner, text="Status:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
         self.status_var = tk.StringVar(value='Available')
-        status_frame = tk.Frame(self.dialog)
+        status_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
         status_frame.pack()
-        ttk.Combobox(status_frame, textvariable=self.status_var, width=28,
-                     values=['Available', 'Occupied', 'Maintenance', 'Reserved'], state='readonly').pack()
-        
+        ttk.Combobox(status_frame, textvariable=self.status_var, width=30,
+                 values=['Available', 'Occupied', 'Maintenance', 'Reserved'], state='readonly').pack()
+
         # Description
-        tk.Label(self.dialog, text="Description:").pack(pady=(10, 5))
-        self.description_entry = tk.Entry(self.dialog, width=30)
+        tk.Label(container.inner, text="Description:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.description_entry = tk.Entry(container.inner, width=34)
         self.description_entry.pack()
-        
+
         # Buttons
-        button_frame = tk.Frame(self.dialog)
-        button_frame.pack(pady=20)
-        make_button(button_frame, "Save", command=self.save, color='#27ae60', width=12).pack(side=tk.LEFT, padx=6)
-        make_button(button_frame, "Cancel", command=self.dialog.destroy, color='#95a5a6', width=12).pack(side=tk.LEFT, padx=6)
+        button_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
+        button_frame.pack(pady=16)
+        make_button(button_frame, "Save", command=self.save, color=THEME['primary'], width=12).pack(side=tk.LEFT, padx=6)
+        make_button(button_frame, "Cancel", command=self.dialog.destroy, color=THEME['muted'], width=12).pack(side=tk.LEFT, padx=6)
         
         # Load data if editing
         if mode == 'edit' and room:

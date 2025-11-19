@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.room import Room
 from app.models.booking import Booking
 from app.models.review import Review
+from app.utils.style import apply_theme, center_window
 
 
 def run_app():
@@ -21,6 +22,22 @@ def run_app():
         print(f"Warning: Could not create tables: {e}")
 
     root = tk.Tk()
+    # Apply the premium theme and start in a comfortable windowed size
+    try:
+        apply_theme(root, fullscreen=False)
+        # Slightly increase Tk scaling for better readability on high-DPI screens
+        try:
+            root.tk.call('tk', 'scaling', 1.15)
+        except Exception:
+            pass
+        # Set a pleasant default window size and center it
+        try:
+            center_window(root, width=1200, height=800)
+            root.minsize(1000, 650)
+        except Exception:
+            pass
+    except Exception:
+        pass
 
     def open_dashboard():
         # destroy login window widgets and open dashboard

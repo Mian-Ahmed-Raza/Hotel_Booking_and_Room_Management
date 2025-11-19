@@ -2,7 +2,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from app.services.auth import AuthService
-from app.utils.style import center_window, make_button, make_header, apply_theme
+from app.utils.style import center_window, make_button, make_header, apply_theme, THEME, card_frame
+from tkinter import ttk
 
 
 class LoginWindow:
@@ -11,25 +12,43 @@ class LoginWindow:
         self.on_success = on_success
         self.on_register = on_register
         master.title("Hotel Booking - Login")
-        center_window(master, 460, 320)
+        center_window(master, 900, 600)
         apply_theme(master)
 
-        header = make_header(master, "Welcome — Please sign in")
-        header.pack(pady=(18, 6))
+        # Main container
+        container = tk.Frame(master, bg=THEME['bg'])
+        container.pack(fill=tk.BOTH, expand=True)
 
-        tk.Label(master, text="Username:", bg=master['bg']).pack(pady=(8, 3))
-        self.username_entry = tk.Entry(master, width=36)
-        self.username_entry.pack()
+        # Card in center for the login form
+        card = card_frame(container, padx=28, pady=24)
+        card.place(relx=0.5, rely=0.12, anchor='n')
 
-        tk.Label(master, text="Password:", bg=master['bg']).pack(pady=(10, 3))
-        self.password_entry = tk.Entry(master, show='*', width=36)
-        self.password_entry.pack()
+        header = make_header(card.inner, "Welcome — Please sign in")
+        header.pack(pady=(2, 12))
+
+        form = tk.Frame(card.inner, bg=THEME['card_bg'])
+        form.pack(padx=6, pady=6)
+
+        ttk.Label(form, text="Username:", style='Muted.TLabel').grid(row=0, column=0, sticky='w', pady=(6, 2))
+        self.username_entry = ttk.Entry(form, width=40)
+        self.username_entry.grid(row=1, column=0, pady=(0, 8), ipady=6)
+
+        ttk.Label(form, text="Password:", style='Muted.TLabel').grid(row=2, column=0, sticky='w', pady=(8, 2))
+        self.password_entry = ttk.Entry(form, show='*', width=40)
+        self.password_entry.grid(row=3, column=0, pady=(0, 10), ipady=6)
         self.password_entry.bind('<Return>', lambda e: self.handle_login())
 
-        make_button(master, "Login", command=self.handle_login, width=18).pack(pady=12)
-        # Add register link
+        btn_frame = tk.Frame(card.inner, bg=THEME['card_bg'])
+        btn_frame.pack(pady=(6, 2))
+
+        # Primary login button
+        login_btn = make_button(btn_frame, "Login", command=self.handle_login, width=20, variant='primary')
+        login_btn.pack(pady=(6, 6))
+
+        # Secondary create account button (styled)
         if self.on_register:
-            make_button(master, "Create Account", command=self.on_register, color='#9b59b6', width=18).pack(pady=4)
+            create_btn = make_button(btn_frame, "Create Account", command=self.on_register, width=20, variant='secondary')
+            create_btn.pack(pady=(2, 0))
 
     def handle_login(self):
         username = self.username_entry.get().strip()

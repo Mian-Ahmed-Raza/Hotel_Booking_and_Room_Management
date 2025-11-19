@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
 from app.models.booking import Booking
 from app.models.room import Room
-from app.utils.style import center_window, make_button, make_header, apply_theme
+from app.utils.style import center_window, make_button, make_header, apply_theme, card_frame, THEME, make_appbar
 
 
 class BookingManagementWindow:
@@ -13,6 +13,8 @@ class BookingManagementWindow:
         master.title("Booking Management")
         center_window(master, 1000, 600)
         apply_theme(master)
+        # App bar
+        make_appbar(master, title="Booking Management").pack(fill=tk.X)
         header = make_header(master, "Booking Management")
         header.pack(pady=(12, 6))
         
@@ -25,17 +27,17 @@ class BookingManagementWindow:
         make_button(top_frame, "Cancel Booking", command=self.cancel_booking, color='#e74c3c', width=14).pack(side=tk.LEFT, padx=6)
         make_button(top_frame, "Refresh", command=self.load_bookings, width=12).pack(side=tk.LEFT, padx=6)
         
-        # Treeview for displaying bookings
-        tree_frame = tk.Frame(master)
-        tree_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
-        
+        # Treeview for displaying bookings (card)
+        tree_card = card_frame(master)
+        tree_card.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
         # Scrollbar
-        scrollbar = ttk.Scrollbar(tree_frame)
+        scrollbar = ttk.Scrollbar(tree_card.inner)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         # Create treeview
-        self.tree = ttk.Treeview(tree_frame, columns=('ID', 'Guest', 'Phone', 'Room', 'Check-in', 'Check-out', 'Price', 'Status'), 
-                                  show='headings', yscrollcommand=scrollbar.set)
+        self.tree = ttk.Treeview(tree_card.inner, columns=('ID', 'Guest', 'Phone', 'Room', 'Check-in', 'Check-out', 'Price', 'Status'), 
+                      show='headings', yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tree.yview)
         
         # Define columns
@@ -139,43 +141,46 @@ class NewBookingDialog:
         center_window(self.dialog, 450, 450)
         self.dialog.transient(parent)
         self.dialog.grab_set()
+        apply_theme(self.dialog)
+        container = card_frame(self.dialog)
+        container.pack(fill=tk.BOTH, expand=True, padx=12, pady=8)
         
         # Guest Name
-        tk.Label(self.dialog, text="Guest Name:").pack(pady=(20, 5))
-        self.guest_name_entry = tk.Entry(self.dialog, width=35)
+        tk.Label(container.inner, text="Guest Name:", bg=THEME['card_bg']).pack(pady=(12, 5), anchor='w')
+        self.guest_name_entry = tk.Entry(container.inner, width=35)
         self.guest_name_entry.pack()
         
         # Guest Phone
-        tk.Label(self.dialog, text="Guest Phone:").pack(pady=(10, 5))
-        self.guest_phone_entry = tk.Entry(self.dialog, width=35)
+        tk.Label(container.inner, text="Guest Phone:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.guest_phone_entry = tk.Entry(container.inner, width=35)
         self.guest_phone_entry.pack()
         
         # Room Selection
-        tk.Label(self.dialog, text="Select Room:").pack(pady=(10, 5))
+        tk.Label(container.inner, text="Select Room:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
         self.room_var = tk.StringVar()
-        self.room_combo = ttk.Combobox(self.dialog, textvariable=self.room_var, width=33, state='readonly')
+        self.room_combo = ttk.Combobox(container.inner, textvariable=self.room_var, width=33, state='readonly')
         self.room_combo.pack()
         self.load_available_rooms()
         
         # Check-in Date
-        tk.Label(self.dialog, text="Check-in Date (YYYY-MM-DD):").pack(pady=(10, 5))
-        self.checkin_entry = tk.Entry(self.dialog, width=35)
+        tk.Label(container.inner, text="Check-in Date (YYYY-MM-DD):", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.checkin_entry = tk.Entry(container.inner, width=35)
         self.checkin_entry.insert(0, datetime.now().strftime('%Y-%m-%d'))
         self.checkin_entry.pack()
         
         # Check-out Date
-        tk.Label(self.dialog, text="Check-out Date (YYYY-MM-DD):").pack(pady=(10, 5))
-        self.checkout_entry = tk.Entry(self.dialog, width=35)
+        tk.Label(container.inner, text="Check-out Date (YYYY-MM-DD):", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.checkout_entry = tk.Entry(container.inner, width=35)
         self.checkout_entry.insert(0, (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d'))
         self.checkout_entry.pack()
         
         # Price per night (auto-filled)
-        tk.Label(self.dialog, text="Price per Night:").pack(pady=(10, 5))
-        self.price_label = tk.Label(self.dialog, text="Select a room", fg='blue')
+        tk.Label(container.inner, text="Price per Night:", bg=THEME['card_bg']).pack(pady=(10, 5), anchor='w')
+        self.price_label = tk.Label(container.inner, text="Select a room", fg=THEME['primary'], bg=THEME['card_bg'])
         self.price_label.pack()
         
         # Total Price (calculated)
-        self.total_label = tk.Label(self.dialog, text="Total: $0.00", font=('Arial', 12, 'bold'), fg='green')
+        self.total_label = tk.Label(container.inner, text="Total: $0.00", font=('Segoe UI', 12, 'bold'), fg=THEME['accent'], bg=THEME['card_bg'])
         self.total_label.pack(pady=10)
         
         # Bind events
@@ -184,10 +189,10 @@ class NewBookingDialog:
         self.checkout_entry.bind('<KeyRelease>', self.calculate_price)
         
         # Buttons
-        button_frame = tk.Frame(self.dialog)
-        button_frame.pack(pady=15)
-        make_button(button_frame, "Book Now", command=self.save_booking, color='#27ae60', width=12).pack(side=tk.LEFT, padx=6)
-        make_button(button_frame, "Cancel", command=self.dialog.destroy, color='#95a5a6', width=12).pack(side=tk.LEFT, padx=6)
+        button_frame = tk.Frame(container.inner, bg=THEME['card_bg'])
+        button_frame.pack(pady=12)
+        make_button(button_frame, "Book Now", command=self.save_booking, color=THEME['primary'], width=12).pack(side=tk.LEFT, padx=6)
+        make_button(button_frame, "Cancel", command=self.dialog.destroy, color=THEME['muted'], width=12).pack(side=tk.LEFT, padx=6)
     
     def load_available_rooms(self):
         try:
@@ -217,13 +222,13 @@ class NewBookingDialog:
             nights = (checkout - checkin).days
             
             if nights <= 0:
-                self.total_label.config(text="Invalid dates", fg='red')
+                self.total_label.config(text="Invalid dates", fg=THEME['danger'])
                 return
             
             total = room.price * nights
-            self.total_label.config(text=f"Total: ${total:.2f} ({nights} nights)", fg='green')
+            self.total_label.config(text=f"Total: ${total:.2f} ({nights} nights)", fg=THEME['accent'])
         except:
-            self.total_label.config(text="Invalid input", fg='red')
+            self.total_label.config(text="Invalid input", fg=THEME['danger'])
     
     def save_booking(self):
         guest_name = self.guest_name_entry.get().strip()
@@ -264,14 +269,15 @@ class ViewBookingDialog:
     def __init__(self, parent, booking):
         dialog = tk.Toplevel(parent)
         dialog.title(f"Booking Details - #{booking.id}")
-        center_window(dialog, 400, 350)
+        center_window(dialog, 420, 380)
         dialog.transient(parent)
-        
+        apply_theme(dialog)
+
         room = Room.get_by_id(booking.room_id)
-        
-        info_frame = tk.Frame(dialog)
-        info_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
-        
+
+        info_card = card_frame(dialog)
+        info_card.pack(pady=12, padx=12, fill=tk.BOTH, expand=True)
+
         details = [
             ("Booking ID:", booking.id),
             ("Guest Name:", booking.guest_name),
@@ -284,9 +290,9 @@ class ViewBookingDialog:
             ("Status:", booking.status),
             ("Booked On:", booking.created_at)
         ]
-        
+
         for i, (label, value) in enumerate(details):
-            tk.Label(info_frame, text=label, font=('Arial', 10, 'bold')).grid(row=i, column=0, sticky='w', pady=5)
-            tk.Label(info_frame, text=str(value), font=('Arial', 10)).grid(row=i, column=1, sticky='w', padx=20, pady=5)
-        
-        make_button(dialog, "Close", command=dialog.destroy, width=15, color='#95a5a6').pack(pady=10)
+            tk.Label(info_card.inner, text=label, font=('Segoe UI', 10, 'bold'), bg=THEME['card_bg'], fg=THEME['muted']).grid(row=i, column=0, sticky='w', pady=6)
+            tk.Label(info_card.inner, text=str(value), font=('Segoe UI', 10), bg=THEME['card_bg'], fg=THEME['text']).grid(row=i, column=1, sticky='w', padx=20, pady=6)
+
+        make_button(dialog, "Close", command=dialog.destroy, width=15, color=THEME['muted']).pack(pady=10)

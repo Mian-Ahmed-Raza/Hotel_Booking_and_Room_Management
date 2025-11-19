@@ -2,7 +2,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from app.services.auth import AuthService
-from app.utils.style import center_window, make_button, make_header, apply_theme
+from app.utils.style import center_window, make_button, make_header, apply_theme, THEME
+from tkinter import ttk
 
 
 class RegisterWindow:
@@ -16,20 +17,20 @@ class RegisterWindow:
         header = make_header(master, "Create your account")
         header.pack(pady=(18, 6))
 
-        tk.Label(master, text="Username:", bg=master['bg']).pack(pady=(10, 3))
-        self.username_entry = tk.Entry(master, width=40)
+        ttk.Label(master, text="Username:", style='Muted.TLabel').pack(pady=(10, 3), anchor='w')
+        self.username_entry = ttk.Entry(master, width=40)
         self.username_entry.pack()
 
-        tk.Label(master, text="Full Name:", bg=master['bg']).pack(pady=(10, 3))
-        self.fullname_entry = tk.Entry(master, width=40)
+        ttk.Label(master, text="Full Name:", style='Muted.TLabel').pack(pady=(10, 3), anchor='w')
+        self.fullname_entry = ttk.Entry(master, width=40)
         self.fullname_entry.pack()
 
-        tk.Label(master, text="Password:", bg=master['bg']).pack(pady=(10, 3))
-        self.password_entry = tk.Entry(master, show='*', width=40)
+        ttk.Label(master, text="Password:", style='Muted.TLabel').pack(pady=(10, 3), anchor='w')
+        self.password_entry = ttk.Entry(master, show='*', width=40)
         self.password_entry.pack()
 
-        tk.Label(master, text="Confirm Password:", bg=master['bg']).pack(pady=(10, 3))
-        self.confirm_password_entry = tk.Entry(master, show='*', width=40)
+        ttk.Label(master, text="Confirm Password:", style='Muted.TLabel').pack(pady=(10, 3), anchor='w')
+        self.confirm_password_entry = ttk.Entry(master, show='*', width=40)
         self.confirm_password_entry.pack()
         self.confirm_password_entry.bind('<Return>', lambda e: self.handle_register())
 
